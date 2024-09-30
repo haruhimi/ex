@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>実験データ管理ページ</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h1 { color: #333; }
+        #download-excel { 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+    <h1>実験データ管理ページ</h1>
+    <p>このページは実験管理者専用です。</p>
+    <button id="download-excel">Download Excel</button>
+
+    <script>
+        document.getElementById('download-excel').addEventListener('click', function() {
+            window.location.href = 'https://citrine-obsidian-parallelogram.glitch.me/download-excel';
+        });
+    </script>
+</body>
+</html>
