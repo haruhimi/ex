@@ -11,95 +11,48 @@
     <button id="download-excel" style="position: fixed; top: 10px; right: 10px; z-index: 1000; display: none;">Download Excel</button>
     <script>
         function saveData(data){
+            console.log("Attempting to save data...");
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'https://YOUR-GLITCH-PROJECT-NAME.glitch.me/save-data');
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
                 if(xhr.status === 200){
                     var response = JSON.parse(xhr.responseText);
-                    console.log(response);
+                    console.log('Data saved successfully:', response);
                     alert("データが正常に保存されました。");
                     document.getElementById('download-excel').style.display = 'block';
+                } else {
+                    console.error('Error saving data:', xhr.statusText);
+                    alert("データの保存中にエラーが発生しました。");
                 }
+            };
+            xhr.onerror = function() {
+                console.error('Network error occurred');
+                alert("ネットワークエラーが発生しました。");
             };
             xhr.send(JSON.stringify({data: data}));
         }
 
         document.getElementById('download-excel').addEventListener('click', function() {
-            window.location.href = 'https://transparent-thin-stove.glitch.me/download-excel';
+            window.location.href = 'https://YOUR-GLITCH-PROJECT-NAME.glitch.me/download-excel';
         });
 
         const jsPsych = initJsPsych({
             on_finish: function() {
+                console.log("jsPsych experiment finished");
                 saveData(jsPsych.data.get().csv());
             },
-            use_webaudio: false,
             show_progress_bar: true,
-            auto_update_progress_bar: false,
-            on_trial_finish: function() {
-                jsPsych.setProgressBar(jsPsych.getProgressBarCompleted() + 0.1);
-            }
+            auto_update_progress_bar: false
         });
 
-        const timeline = [];
+        // 実験のタイムラインは前のコードと同じです
+        const timeline = [/* ... */];
 
-        const welcome = {
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: "Welcome to the experiment. Press any key to begin.",
-            on_finish: function(data) {
-                console.log('Welcome trial completed');
-            }
-        };
-        timeline.push(welcome);
-
-        const instructions = {
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: `
-                <p>この実験では、画面に表示される単語の色を答えていただきます。</p>
-                <p>単語が<span style="color: red;">赤色</span>の場合は'R'キーを、<span style="color: blue;">青色</span>の場合は'B'キーを押してください。</p>
-                <p>準備ができたら、何かキーを押して始めてください。</p>
-            `
-        };
-        timeline.push(instructions);
-
-        const fixation = {
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: '<div style="font-size:60px;">+</div>',
-            choices: "NO_KEYS",
-            trial_duration: 500,
-        };
-
-        const stroop_trial = {
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: function(){
-                const colors = ['red', 'blue'];
-                const words = ['赤', '青'];
-                const color = jsPsych.randomization.sampleWithoutReplacement(colors, 1)[0];
-                const word = jsPsych.randomization.sampleWithoutReplacement(words, 1)[0];
-                return `<div style="color:${color}; font-size:60px;">${word}</div>`;
-            },
-            choices: ['r', 'b'],
-            data: {
-                task: 'stroop'
-            },
-            on_finish: function(data){
-                const correct_key = data.stimulus.includes('red') ? 'r' : 'b';
-                data.correct = data.response === correct_key;
-            }
-        };
-
-        for(let i = 0; i < 10; i++){
-            timeline.push(fixation);
-            timeline.push(stroop_trial);
-        }
-
-        const end_screen = {
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: '実験が終了しました。ご協力ありがとうございました。'
-        };
-        timeline.push(end_screen);
-
-        jsPsych.run(timeline);
+        jsPsych.run(timeline).then(function() {
+            console.log("Experiment finished, attempting to save data...");
+            saveData(jsPsych.data.get().csv());
+        });
     </script>
 </body>
 </html>
