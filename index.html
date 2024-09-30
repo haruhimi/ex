@@ -8,22 +8,9 @@
 </head>
 <body>
     <script>
-        // function saveData(data){
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://script.google.com/macros/s/AKfycbzNOtOX1YOO9wSHNYIHZOUnePKYsNcNJC3C3JHnhGH3Y9RThRN9ULU7LyGakceisZbytA/exec');
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            console.log('Data saved successfully');
-        } else {
-            console.error('Error saving data');
-        }
-    };
-    xhr.send(encodeURIComponent(data));
-}
         function saveData(data){
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec');
+            xhr.open('POST', 'https://script.google.com/macros/s/AKfycbzNOtOX1YOO9wSHNYIHZOUnePKYsNcNJC3C3JHnhGH3Y9RThRN9ULU7LyGakceisZbytA/exec');
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onload = function() {
                 if (xhr.status === 200) {
