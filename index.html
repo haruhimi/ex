@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Online Cognitive Task</title>
+    <title>オンライン認知課題実験</title>
     <script src="https://unpkg.com/jspsych@7.3.3"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
@@ -20,7 +20,12 @@
                     var response = JSON.parse(xhr.responseText);
                     console.log('Data saved successfully:', response);
                     alert("データが正常に保存されました。");
-                    document.getElementById('download-excel').style.display = 'block';
+                    var downloadButton = document.getElementById('download-excel');
+                    if (downloadButton) {
+                        downloadButton.style.display = 'block';
+                    } else {
+                        console.error('Download button not found');
+                    }
                 } else {
                     console.error('Error saving data:', xhr.statusText);
                     alert("データの保存中にエラーが発生しました。");
@@ -33,8 +38,15 @@
             xhr.send(JSON.stringify({data: data}));
         }
 
-        document.getElementById('download-excel').addEventListener('click', function() {
-            window.location.href = 'https://citrine-obsidian-parallelogram.glitch.me/download-excel';
+        document.addEventListener('DOMContentLoaded', function() {
+            var downloadButton = document.getElementById('download-excel');
+            if (downloadButton) {
+                downloadButton.addEventListener('click', function() {
+                    window.location.href = 'https://citrine-obsidian-parallelogram.glitch.me/download-excel';
+                });
+            } else {
+                console.error('Download button not found in DOMContentLoaded');
+            }
         });
 
         const jsPsych = initJsPsych({
@@ -50,10 +62,7 @@
 
         const welcome = {
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: "Welcome to the experiment. Press any key to begin.",
-            on_finish: function(data) {
-                console.log('Welcome trial completed');
-            }
+            stimulus: "実験へようこそ。何かキーを押して始めてください。"
         };
         timeline.push(welcome);
 
@@ -66,13 +75,6 @@
             `
         };
         timeline.push(instructions);
-
-        const fixation = {
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: '<div style="font-size:60px;">+</div>',
-            choices: "NO_KEYS",
-            trial_duration: 500,
-        };
 
         const stroop_trial = {
             type: jsPsychHtmlKeyboardResponse,
@@ -94,7 +96,6 @@
         };
 
         for(let i = 0; i < 10; i++){
-            timeline.push(fixation);
             timeline.push(stroop_trial);
         }
 
