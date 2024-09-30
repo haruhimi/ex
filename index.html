@@ -8,13 +8,26 @@
     <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+    <button id="download-excel" style="position: fixed; top: 10px; right: 10px; z-index: 1000; display: none;">Download Excel</button>
     <script>
         function saveData(data){
-            console.log('Data to be saved:', data);
-            // ここでデータを表示するか、ローカルストレージに保存します
-            localStorage.setItem('experiment_data', data);
-            alert('実験が終了しました。データはローカルに保存されました。');
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://YOUR-GLITCH-PROJECT-NAME.glitch.me/save-data');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if(xhr.status === 200){
+                    var response = JSON.parse(xhr.responseText);
+                    console.log(response);
+                    alert("データが正常に保存されました。");
+                    document.getElementById('download-excel').style.display = 'block';
+                }
+            };
+            xhr.send(JSON.stringify({data: data}));
         }
+
+        document.getElementById('download-excel').addEventListener('click', function() {
+            window.location.href = 'https://transparent-thin-stove.glitch.me/download-excel';
+        });
 
         const jsPsych = initJsPsych({
             on_finish: function() {
