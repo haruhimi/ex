@@ -10,30 +10,22 @@
 <body>
     <script>
         function saveData(data){
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'https://script.google.com/macros/s/AKfycbzNOtOX1YOO9wSHNYIHZOUnePKYsNcNJC3C3JHnhGH3Y9RThRN9ULU7LyGakceisZbytA/exec');
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    console.log('Data saved successfully');
-                } else {
-                    console.error('Error saving data');
-                }
-            };
-            xhr.send(encodeURIComponent(data));
+            console.log('Data to be saved:', data);
+            // ここでデータを表示するか、ローカルストレージに保存します
+            localStorage.setItem('experiment_data', data);
+            alert('実験が終了しました。データはローカルに保存されました。');
         }
 
         const jsPsych = initJsPsych({
             on_finish: function() {
                 saveData(jsPsych.data.get().csv());
             },
+            use_webaudio: false,
             show_progress_bar: true,
             auto_update_progress_bar: false,
             on_trial_finish: function() {
-                // Update progress bar manually
                 jsPsych.setProgressBar(jsPsych.getProgressBarCompleted() + 0.1);
-            },
-            display_element: 'jspsych-target'
+            }
         });
 
         const timeline = [];
@@ -93,11 +85,6 @@
             stimulus: '実験が終了しました。ご協力ありがとうございました。'
         };
         timeline.push(end_screen);
-
-        // Create a target element for jsPsych
-        const target = document.createElement('div');
-        target.id = 'jspsych-target';
-        document.body.appendChild(target);
 
         jsPsych.run(timeline);
     </script>
