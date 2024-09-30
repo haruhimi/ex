@@ -4,6 +4,7 @@
     <title>Online Cognitive Task</title>
     <script src="https://unpkg.com/jspsych@7.3.3"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
     <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -32,13 +33,69 @@
 
         const timeline = [];
 
+        const preload = {
+            type: jsPsychPreload,
+            images: ['https://example.com/image1.png', 'https://example.com/image2.png']
+        };
+        timeline.push(preload);
+
         const welcome = {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: "Welcome to the experiment. Press any key to begin."
         };
         timeline.push(welcome);
 
-        // 実験のトライアルをここに追加
+        // 指示画面
+        const instructions = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: `
+                <p>この実験では、画面に表示される単語の色を答えていただきます。</p>
+                <p>単語が<span style="color: red;">赤色</span>の場合は'R'キーを、<span style="color: blue;">青色</span>の場合は'B'キーを押してください。</p>
+                <p>準備ができたら、何かキーを押して始めてください。</p>
+            `
+        };
+
+        // 凝視点
+        const fixation = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '<div style="font-size:60px;">+</div>',
+            choices: "NO_KEYS",
+            trial_duration: 500,
+        };
+
+        // Stroop課題のトライアル
+        const stroop_trial = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: function(){
+                const colors = ['red', 'blue'];
+                const words = ['赤', '青'];
+                const color = jsPsych.randomization.sampleWithoutReplacement(colors, 1)[0];
+                const word = jsPsych.randomization.sampleWithoutReplacement(words, 1)[0];
+                return `<div style="color:${color}; font-size:60px;">${word}</div>`;
+            },
+            choices: ['r', 'b'],
+            data: {
+                task: 'stroop'
+            },
+            on_finish: function(data){
+                const correct_key = data.stimulus.includes('red') ? 'r' : 'b';
+                data.correct = data.response === correct_key;
+            }
+        };
+
+        // タイムラインにトライアルを追加
+        timeline.push(instructions);
+        for(let i = 0; i < 10; i++){
+            timeline.push(fixation);
+            timeline.push(stroop_trial);
+        }
+
+        // 終了画面
+        const end_screen = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '実験が終了しました。ご協力ありがとうございました。'
+        };
+        timeline.push(end_screen);
 
         jsPsych.run(timeline);
     </script>
