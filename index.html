@@ -23,15 +23,15 @@
             xhr.send(encodeURIComponent(data));
         }
 
-        // jsPsychの初期化
         const jsPsych = initJsPsych({
             on_finish: function() {
-                // データ表示を削除
-                // jsPsych.data.displayData();
                 saveData(jsPsych.data.get().csv());
             },
             show_progress_bar: true,
-            auto_update_progress_bar: false
+            auto_update_progress_bar: false,
+            on_data_update: function(data) {
+                console.log('Data updated:', data);
+            }
         });
 
         const timeline = [];
@@ -44,11 +44,13 @@
 
         const welcome = {
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: "Welcome to the experiment. Press any key to begin."
+            stimulus: "Welcome to the experiment. Press any key to begin.",
+            on_finish: function(data) {
+                console.log('Welcome trial completed:', data);
+            }
         };
         timeline.push(welcome);
 
-        // 指示画面
         const instructions = {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: `
@@ -58,7 +60,6 @@
             `
         };
 
-        // 凝視点
         const fixation = {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: '<div style="font-size:60px;">+</div>',
@@ -66,7 +67,6 @@
             trial_duration: 500,
         };
 
-        // Stroop課題のトライアル
         const stroop_trial = {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: function(){
@@ -83,22 +83,22 @@
             on_finish: function(data){
                 const correct_key = data.stimulus.includes('red') ? 'r' : 'b';
                 data.correct = data.response === correct_key;
-                // プログレスバーの更新
                 jsPsych.setProgressBar(jsPsych.getProgressBarCompleted() + 0.1);
             }
         };
 
-        // タイムラインにトライアルを追加
         timeline.push(instructions);
         for(let i = 0; i < 10; i++){
             timeline.push(fixation);
             timeline.push(stroop_trial);
         }
 
-        // 終了画面
         const end_screen = {
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: '実験が終了しました。ご協力ありがとうございました。'
+            stimulus: '実験が終了しました。ご協力ありがとうございました。',
+            on_finish: function(data) {
+                saveData(jsPsych.data.get().csv());
+            }
         };
         timeline.push(end_screen);
 
