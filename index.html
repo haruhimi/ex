@@ -26,9 +26,12 @@
         // jsPsychの初期化
         const jsPsych = initJsPsych({
             on_finish: function() {
-                jsPsych.data.displayData();
+                // データ表示を削除
+                // jsPsych.data.displayData();
                 saveData(jsPsych.data.get().csv());
-            }
+            },
+            show_progress_bar: true,
+            auto_update_progress_bar: false
         });
 
         const timeline = [];
@@ -80,6 +83,8 @@
             on_finish: function(data){
                 const correct_key = data.stimulus.includes('red') ? 'r' : 'b';
                 data.correct = data.response === correct_key;
+                // プログレスバーの更新
+                jsPsych.setProgressBar(jsPsych.getProgressBarCompleted() + 0.1);
             }
         };
 
