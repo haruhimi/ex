@@ -29,24 +29,20 @@
             },
             show_progress_bar: true,
             auto_update_progress_bar: false,
-            on_data_update: function(data) {
-                console.log('Data updated:', data);
-            }
+            on_trial_finish: function() {
+                // Update progress bar manually
+                jsPsych.setProgressBar(jsPsych.getProgressBarCompleted() + 0.1);
+            },
+            display_element: 'jspsych-target'
         });
 
         const timeline = [];
-
-        const preload = {
-            type: jsPsychPreload,
-            images: ['https://example.com/image1.png', 'https://example.com/image2.png']
-        };
-        timeline.push(preload);
 
         const welcome = {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: "Welcome to the experiment. Press any key to begin.",
             on_finish: function(data) {
-                console.log('Welcome trial completed:', data);
+                console.log('Welcome trial completed');
             }
         };
         timeline.push(welcome);
@@ -59,6 +55,7 @@
                 <p>準備ができたら、何かキーを押して始めてください。</p>
             `
         };
+        timeline.push(instructions);
 
         const fixation = {
             type: jsPsychHtmlKeyboardResponse,
@@ -83,11 +80,9 @@
             on_finish: function(data){
                 const correct_key = data.stimulus.includes('red') ? 'r' : 'b';
                 data.correct = data.response === correct_key;
-                jsPsych.setProgressBar(jsPsych.getProgressBarCompleted() + 0.1);
             }
         };
 
-        timeline.push(instructions);
         for(let i = 0; i < 10; i++){
             timeline.push(fixation);
             timeline.push(stroop_trial);
@@ -95,12 +90,14 @@
 
         const end_screen = {
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: '実験が終了しました。ご協力ありがとうございました。',
-            on_finish: function(data) {
-                saveData(jsPsych.data.get().csv());
-            }
+            stimulus: '実験が終了しました。ご協力ありがとうございました。'
         };
         timeline.push(end_screen);
+
+        // Create a target element for jsPsych
+        const target = document.createElement('div');
+        target.id = 'jspsych-target';
+        document.body.appendChild(target);
 
         jsPsych.run(timeline);
     </script>
