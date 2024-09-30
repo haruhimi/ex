@@ -34,7 +34,7 @@
         }
 
         document.getElementById('download-excel').addEventListener('click', function() {
-            window.location.href = 'https://YOUR-GLITCH-PROJECT-NAME.glitch.me/download-excel';
+            window.location.href = 'https://transparent-thin-stove.glitch.me/download-excel';
         });
 
         const jsPsych = initJsPsych({
@@ -46,13 +46,65 @@
             auto_update_progress_bar: false
         });
 
-        // 実験のタイムラインは前のコードと同じです
-        const timeline = [/* ... */];
+        const timeline = [];
 
-        jsPsych.run(timeline).then(function() {
-            console.log("Experiment finished, attempting to save data...");
-            saveData(jsPsych.data.get().csv());
-        });
+        const welcome = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: "Welcome to the experiment. Press any key to begin.",
+            on_finish: function(data) {
+                console.log('Welcome trial completed');
+            }
+        };
+        timeline.push(welcome);
+
+        const instructions = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: `
+                <p>この実験では、画面に表示される単語の色を答えていただきます。</p>
+                <p>単語が<span style="color: red;">赤色</span>の場合は'R'キーを、<span style="color: blue;">青色</span>の場合は'B'キーを押してください。</p>
+                <p>準備ができたら、何かキーを押して始めてください。</p>
+            `
+        };
+        timeline.push(instructions);
+
+        const fixation = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '<div style="font-size:60px;">+</div>',
+            choices: "NO_KEYS",
+            trial_duration: 500,
+        };
+
+        const stroop_trial = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: function(){
+                const colors = ['red', 'blue'];
+                const words = ['赤', '青'];
+                const color = jsPsych.randomization.sampleWithoutReplacement(colors, 1)[0];
+                const word = jsPsych.randomization.sampleWithoutReplacement(words, 1)[0];
+                return `<div style="color:${color}; font-size:60px;">${word}</div>`;
+            },
+            choices: ['r', 'b'],
+            data: {
+                task: 'stroop'
+            },
+            on_finish: function(data){
+                const correct_key = data.stimulus.includes('red') ? 'r' : 'b';
+                data.correct = data.response === correct_key;
+            }
+        };
+
+        for(let i = 0; i < 10; i++){
+            timeline.push(fixation);
+            timeline.push(stroop_trial);
+        }
+
+        const end_screen = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '実験が終了しました。ご協力ありがとうございました。'
+        };
+        timeline.push(end_screen);
+
+        jsPsych.run(timeline);
     </script>
 </body>
 </html>
