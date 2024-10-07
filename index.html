@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>オンライン認知課題実験</title>
+    <title>jsPsych認知課題実験</title>
     <script src="https://unpkg.com/jspsych@7.3.3"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
     <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
 </head>
@@ -13,13 +14,13 @@
         function saveData(data){
             console.log("Attempting to save data...");
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'https://citrine-obsidian-parallelogram.glitch.me/save-data');
+            xhr.open('POST', 'https://fir-aboard-soil.glitch.me/save-data');
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
                 if(xhr.status === 200){
                     var response = JSON.parse(xhr.responseText);
                     console.log('Data saved successfully:', response);
-                    alert("実験が終了しました。ありがとうございました。");
+                    alert("実験が終了しました。データが正常に保存されました。");
                 } else {
                     console.error('Error saving data:', xhr.statusText);
                     alert("データの保存中にエラーが発生しました。");
@@ -35,14 +36,47 @@
         const jsPsych = initJsPsych({
             display_element: 'jspsych-experiment',
             on_finish: function() {
-                console.log("jsPsych experiment finished");
                 saveData(jsPsych.data.get().csv());
-            },
-            show_progress_bar: true,
-            auto_update_progress_bar: false
+            }
         });
 
-        // 実験のタイムラインコード（変更なし）
+        const timeline = [];
+
+        const welcome = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: "認知課題実験へようこそ。スペースキーを押して開始してください。"
+        };
+        timeline.push(welcome);
+
+        const instructions = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: `
+                <p>この実験では、画面に表示される刺激に対して反応していただきます。</p>
+                <p>準備ができたら、スペースキーを押して実験を開始してください。</p>
+            `,
+            choices: [' ']
+        };
+        timeline.push(instructions);
+
+        const trial = {
+            type: jsPsychImageKeyboardResponse,
+            stimulus: 'https://example.com/path/to/your/image.png',  // 実際の画像URLに置き換えてください
+            choices: ['f', 'j'],
+            prompt: "<p>画像が表示されたら、できるだけ早く'F'キーを押してください。</p>",
+            data: {
+                task: 'response_time'
+            }
+        };
+
+        for (let i = 0; i < 5; i++) {
+            timeline.push(trial);
+        }
+
+        const end_screen = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '実験が終了しました。ご協力ありがとうございました。'
+        };
+        timeline.push(end_screen);
 
         jsPsych.run(timeline);
     </script>
