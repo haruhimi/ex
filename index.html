@@ -11,39 +11,48 @@
 <body>
     <div id="jspsych-experiment"></div>
     <script>
+        function saveData(data){
+            console.log("Attempting to save data...");
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://fir-aboard-soil.glitch.me/save-data');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if(xhr.status === 200){
+                    var response = JSON.parse(xhr.responseText);
+                    console.log('Data saved successfully:', response);
+                    alert("実験が終了しました。データが正常に保存されました。");
+                } else {
+                    console.error('Error saving data:', xhr.statusText);
+                    alert("データの保存中にエラーが発生しました。");
+                }
+            };
+            xhr.onerror = function() {
+                console.error('Network error occurred');
+                alert("ネットワークエラーが発生しました。");
+            };
+            xhr.send(JSON.stringify({data: data}));
+        }
+
         const jsPsych = initJsPsych({
+            display_element: 'jspsych-experiment',
             on_finish: function() {
-                jsPsych.data.displayData();
+                saveData(jsPsych.data.get().csv());
             }
         });
 
         const timeline = [];
 
-        const preload = {
-            type: jsPsychPreload,
-            images: ['https://raw.githubusercontent.com/haruhimi/ex/e1ef69bbd85d5b2f9dfd97ffa56f2847ea0b6b48/arietty1.jpg'],
-            on_success: function() {
-                console.log('画像のプリロードに成功しました。');
-            },
-            on_error: function(file) {
-                console.error('画像のロードに失敗しました:', file);
-            }
-        };
-        timeline.push(preload);
-
         const welcome = {
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: "実験へようこそ。スペースキーを押して開始してください。",
-            choices: [' ']
+            stimulus: "認知課題実験へようこそ。スペースキーを押して開始してください。"
         };
         timeline.push(welcome);
 
         const instructions = {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: `
-                <p>これから画像が表示されます。</p>
-                <p>画像が表示されたら、できるだけ早く'F'キーを押してください。</p>
-                <p>準備ができたらスペースキーを押してください。</p>
+                <p>この実験では、画面に表示される刺激に対して反応していただきます。</p>
+                <p>準備ができたら、スペースキーを押して実験を開始してください。</p>
             `,
             choices: [' ']
         };
@@ -51,19 +60,17 @@
 
         const trial = {
             type: jsPsychImageKeyboardResponse,
-            stimulus: 'https://raw.githubusercontent.com/haruhimi/ex/e1ef69bbd85d5b2f9dfd97ffa56f2847ea0b6b48/arietty1.jpg',
-            choices: ['f'],
+            stimulus: 'https://raw.githubusercontent.com/haruhimi/ex/e1ef69bbd85d5b2f9dfd97ffa56f2847ea0b6b48/arietty1.jpg',  // 実際の画像URLに置き換えてください
+            choices: ['f', 'j'],
+            prompt: "<p>画像が表示されたら、できるだけ早く'F'キーを押してください。</p>",
             data: {
                 task: 'response_time'
-            },
-            on_load: function() {
-                console.log('画像が読み込まれました。');
-            },
-            on_finish: function(data) {
-                console.log('トライアル終了:', data);
             }
         };
-        timeline.push(trial);
+
+        for (let i = 0; i < 5; i++) {
+            timeline.push(trial);
+        }
 
         const end_screen = {
             type: jsPsychHtmlKeyboardResponse,
