@@ -12,9 +12,27 @@
 </head>
 <body></body>
 <script>
+    // Glitchとの連携のための関数
+    function saveData(data){
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://fir-aboard-soil.glitch.me/save-data');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+            if(xhr.status == 200){
+                var response = JSON.parse(xhr.responseText);
+                console.log(response.message);
+            }
+        };
+        xhr.onerror = function() {
+            console.log("Error: " + xhr.status);
+        }
+        xhr.send(JSON.stringify({data: data}));
+    }
+
     // セットアップ。共通
     var jsPsych = initJsPsych({
         on_finish: function() {
+            saveData(jsPsych.data.get().csv());
             jsPsych.data.displayData();
         }
     });
@@ -23,11 +41,11 @@
     var preload = {
         type: jsPsychPreload,
         auto_preload: true,
-        images: ['画像/感情測定グリッド暫定.png'],
+        images: ['https://raw.githubusercontent.com/haruhimi/ex/main/画像/感情測定グリッド暫定.png'],
         video: [
-            'video/49_ニュートラル.mp4',
-            'video/恐怖_コピーキャット_編集済.mp4',
-            'video/優しさ_妹の恋人_編集済.mp4'
+            'https://raw.githubusercontent.com/haruhimi/ex/main/video/49_ニュートラル.mp4',
+            'https://raw.githubusercontent.com/haruhimi/ex/main/video/恐怖_コピーキャット_編集済.mp4',
+            'https://raw.githubusercontent.com/haruhimi/ex/main/video/優しさ_妹の恋人_編集済.mp4'
         ]
     };
 
@@ -45,7 +63,7 @@
     // 動画1
     var trial_1 = {
         type: jsPsychVideoButtonResponse,
-        stimulus: ['video/49_ニュートラル.mp4'],
+        stimulus: ['https://raw.githubusercontent.com/haruhimi/ex/main/video/49_ニュートラル.mp4'],
         choices: ['次へ'],
         margin_vertical: '10px',
         margin_horizontal: '8px',
@@ -78,7 +96,7 @@
     // 動画2
     var trial_101 = {
         type: jsPsychVideoButtonResponse,
-        stimulus: ['video/恐怖_コピーキャット_編集済.mp4'],
+        stimulus: ['https://raw.githubusercontent.com/haruhimi/ex/main/video/恐怖_コピーキャット_編集済.mp4'],
         choices: ['次へ'],
         margin_vertical: '10px',
         margin_horizontal: '8px',
@@ -111,7 +129,7 @@
     // 動画3
     var trial_201 = {
         type: jsPsychVideoButtonResponse,
-        stimulus: ['video/優しさ_妹の恋人_編集済.mp4'],
+        stimulus: ['https://raw.githubusercontent.com/haruhimi/ex/main/video/優しさ_妹の恋人_編集済.mp4'],
         choices: ['次へ'],
         margin_vertical: '10px',
         margin_horizontal: '8px',
